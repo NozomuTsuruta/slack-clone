@@ -141,6 +141,7 @@ const MessageForm = (props) => {
         />
         <Button
           color='teal'
+          disabled={uploadState==='uploading'}
           onClick={openModal}
           content='upload Media'
           labelPosition='right'

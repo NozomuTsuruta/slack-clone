@@ -13,9 +13,9 @@ const Messages = () => {
   const channel = useSelector((state) => state.channel);
   const user = useSelector((state) => state.user);
   const [progressBar, setProgressBar] = useState(false);
+  const [numUniqueUsers, setNumUniqueUsers] = useState('');
 
   useEffect(() => {
-    console.log(channel.currentChannel);
     if (channel.currentChannel && user.currentUser) {
       messagesRef
         .doc(channel.currentChannel.id)
@@ -29,13 +29,25 @@ const Messages = () => {
           loadedMessages.push(...messageArray);
           setMessages(loadedMessages);
           setMessagesLoading(false);
-          console.log(loadedMessages);
+          countUniqueUsers(loadedMessages);
           return () => {
             messagesRef.off();
           };
         });
     }
   }, [channel]);
+
+  const countUniqueUsers = (messages) => {
+    const uniqueUsers = messages.reduce((acc, message) => {
+      if (!acc.includes(message.user.name)) {
+        acc.push(message.user.name);
+      }
+      return acc;
+    }, []);
+    const plural = uniqueUsers.length > 1 || uniqueUsers.length === 0;
+    const numUsers = `${uniqueUsers.length} user${plural?'s':''}`;
+    setNumUniqueUsers(numUsers);
+  };
 
   const displayMessages = () =>
     messages.length > 0 &&
@@ -49,9 +61,15 @@ const Messages = () => {
     }
   };
 
+  const displayChannelName = () =>
+    channel.currentChannel ? `${channel.currentChannel.name}` : '';
+
   return (
     <React.Fragment>
-      <MessageHeader />
+      <MessageHeader
+        channelName={displayChannelName()}
+        numUniqueUsers={numUniqueUsers}
+      />
 
       <Segment>
         <CommentGroup
@@ -61,7 +79,10 @@ const Messages = () => {
         </CommentGroup>
       </Segment>
 
-      <MessageForm messagesRef={messagesRef} isProgressBarVisible={isProgressBarVisible}/>
+      <MessageForm
+        messagesRef={messagesRef}
+        isProgressBarVisible={isProgressBarVisible}
+      />
     </React.Fragment>
   );
 };

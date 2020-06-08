@@ -13,6 +13,8 @@ const MessageHeader = (props) => {
       </Header>
       <Header dloared='right'>
         <Input
+          loading={props.searchLoading}
+          onChange={props.handleSearchChange}
           size='mini'
           icon='search'
           name='searchTerm'

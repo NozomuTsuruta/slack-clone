@@ -14,6 +14,9 @@ const Messages = () => {
   const user = useSelector((state) => state.user);
   const [progressBar, setProgressBar] = useState(false);
   const [numUniqueUsers, setNumUniqueUsers] = useState('');
+  const [searchTerm, setSearchTerm] = useState('');
+  const [searchLoading, setSearchLoading] = useState(false);
+  const [searchResults, setSearchResults] = useState([]);
 
   useEffect(() => {
     if (channel.currentChannel && user.currentUser) {
@@ -37,6 +40,30 @@ const Messages = () => {
     }
   }, [channel]);
 
+  const handleSearchChange = (e) => {
+    setSearchTerm(e.target.value);
+    setSearchLoading(true);
+    handleSearchMessages(e.target.value);
+  };
+
+  const handleSearchMessages = (searchTerm) => {
+    const channelMessages = [...messages];
+    const regex = new RegExp(searchTerm, 'gi');
+    const searchResults = channelMessages.reduce((acc, message) => {
+      if (
+        (message.content && message.content.match(regex)) ||
+        message.user.name.match(regex)
+      ) {
+        acc.push(message);
+      }
+      return acc;
+    }, []);
+    setSearchResults(searchResults);
+    setTimeout(() => {
+      setSearchLoading(false);
+    }, 1000);
+  };
+
   const countUniqueUsers = (messages) => {
     const uniqueUsers = messages.reduce((acc, message) => {
       if (!acc.includes(message.user.name)) {
@@ -45,11 +72,11 @@ const Messages = () => {
       return acc;
     }, []);
     const plural = uniqueUsers.length > 1 || uniqueUsers.length === 0;
-    const numUsers = `${uniqueUsers.length} user${plural?'s':''}`;
+    const numUsers = `${uniqueUsers.length} user${plural ? 's' : ''}`;
     setNumUniqueUsers(numUsers);
   };
 
-  const displayMessages = () =>
+  const displayMessages = (messages) =>
     messages.length > 0 &&
     messages.map((message) => (
       <Message key={message.timestamp} message={message} />
@@ -69,13 +96,17 @@ const Messages = () => {
       <MessageHeader
         channelName={displayChannelName()}
         numUniqueUsers={numUniqueUsers}
+        handleSearchChange={handleSearchChange}
+        searchLoading={searchLoading}
       />
 
       <Segment>
         <CommentGroup
           className={progressBar ? 'messages' : 'messages__progress'}
         >
-          {displayMessages()}
+          {searchTerm
+            ? displayMessages(searchResults)
+            : displayMessages(messages)}
         </CommentGroup>
       </Segment>
 

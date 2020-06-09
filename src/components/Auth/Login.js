@@ -8,7 +8,6 @@ import {
   Header,
   Message,
   Icon,
-  FormSelect,
 } from 'semantic-ui-react';
 import firebase from '../../firebase';
 

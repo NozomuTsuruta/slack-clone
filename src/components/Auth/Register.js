@@ -8,7 +8,6 @@ import {
   Header,
   Message,
   Icon,
-  FormSelect,
 } from 'semantic-ui-react';
 import firebase from '../../firebase';
 
@@ -134,6 +133,7 @@ const Register = () => {
     return userRef.doc(createdUser.user.uid).set({
       name: createdUser.user.displayName,
       avatar: createdUser.user.photoURL,
+      id: createdUser.user.uid,
     });
   };
 

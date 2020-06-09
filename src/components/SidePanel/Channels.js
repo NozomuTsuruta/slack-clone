@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Menu, Icon, Modal, Form, Input, Button } from 'semantic-ui-react';
 import firebase from 'firebase';
 import { useSelector, useDispatch } from 'react-redux';
-import { setCurrentChannel } from '../../ducks/channel/actions';
+import { setCurrentChannel, setPrivateChannel } from '../../ducks/channel/actions';
 
 const Channels = () => {
   const [channels, setChannels] = useState([]);
@@ -80,6 +80,7 @@ const Channels = () => {
   const changeChannel = (channel) => {
     setActiveChannel(channel.id);
     dispatch(setCurrentChannel(channel));
+    dispatch(setPrivateChannel(false))
   };
 
   const displayChannels = () =>

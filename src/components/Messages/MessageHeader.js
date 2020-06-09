@@ -1,15 +1,16 @@
 import React from 'react';
 import { Segment, Header, Icon, Input } from 'semantic-ui-react';
 
-const MessageHeader = () => {
+const MessageHeader = (props) => {
+  console.log(props)
   return (
     <Segment clearing>
       <Header fluid='true' as='h2' floated='left' style={{ marginBottom: 0 }}>
         <span>
-          Channel
-          <Icon name={'star outline'} color='black' />
+          {props.channelName}
+          {!props.isPrivateChannel && <Icon name={"star outline"} color="black" />}
         </span>
-        <Header.Subheader>2 Users</Header.Subheader>
+        <Header.Subheader>{props.numUniqueUsers}</Header.Subheader>
       </Header>
       <Header dloared='right'>
         <Input

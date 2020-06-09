@@ -14,10 +14,18 @@ const Messages = () => {
   const user = useSelector((state) => state.user);
   const [progressBar, setProgressBar] = useState(false);
   const [numUniqueUsers, setNumUniqueUsers] = useState('');
+  const [privateMessageRef] = useState(
+    firebase.firestore().collection('privateMessages')
+  );
+
+  const getMessageRef = () => {
+    return channel.isPrivateChannel ? privateMessageRef : messagesRef;
+  };
 
   useEffect(() => {
     if (channel.currentChannel && user.currentUser) {
-      messagesRef
+      const ref = getMessageRef();
+      ref
         .doc(channel.currentChannel.id)
         .collection('message')
         .orderBy('timestamp', 'asc')
@@ -31,7 +39,7 @@ const Messages = () => {
           setMessagesLoading(false);
           countUniqueUsers(loadedMessages);
           return () => {
-            messagesRef.off();
+            getMessageRef().off();
           };
         });
     }
@@ -45,7 +53,7 @@ const Messages = () => {
       return acc;
     }, []);
     const plural = uniqueUsers.length > 1 || uniqueUsers.length === 0;
-    const numUsers = `${uniqueUsers.length} user${plural?'s':''}`;
+    const numUsers = `${uniqueUsers.length} user${plural ? 's' : ''}`;
     setNumUniqueUsers(numUsers);
   };
 
@@ -61,14 +69,18 @@ const Messages = () => {
     }
   };
 
-  const displayChannelName = () =>
-    channel.currentChannel ? `${channel.currentChannel.name}` : '';
+  const displayChannelName = () => {
+    return channel.currentChannel
+      ? `${channel.isPrivateChannel ? '@' : '#'}${channel.currentChannel.name}`
+      : '';
+  };
 
   return (
     <React.Fragment>
       <MessageHeader
         channelName={displayChannelName()}
         numUniqueUsers={numUniqueUsers}
+        isPrivateChannel={channel.isPrivateChannel}
       />
 
       <Segment>
@@ -81,7 +93,9 @@ const Messages = () => {
 
       <MessageForm
         messagesRef={messagesRef}
+        isPrivateChannel={channel.isPrivateChannel}
         isProgressBarVisible={isProgressBarVisible}
+        getMessageRef={getMessageRef}
       />
     </React.Fragment>
   );

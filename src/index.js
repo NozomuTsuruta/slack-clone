@@ -7,7 +7,7 @@ import Login from './components/Auth/Login';
 import Register from './components/Auth/Register';
 import registerServiceWorker from './registerServiceWorker';
 import firebase from './firebase';
-import Spinner from './Spinner'
+import Spinner from './Spinner';
 
 import 'semantic-ui-css/semantic.min.css';
 
@@ -20,7 +20,7 @@ import {
 
 import { Provider } from 'react-redux';
 import { store } from './ducks/store';
-import { setUser,clearUser } from './ducks/user/actions';
+import { setUser, clearUser } from './ducks/user/actions';
 
 const Root = (props) => {
   const dispatch = useDispatch();
@@ -29,22 +29,24 @@ const Root = (props) => {
   useEffect(() => {
     firebase.auth().onAuthStateChanged((user) => {
       if (user) {
-        dispatch(setUser(user))
+        dispatch(setUser(user));
         props.history.push('/');
-      }else {
-        props.history.push('/login')
-        dispatch(clearUser())
+      } else {
+        props.history.push('/login');
+        dispatch(clearUser());
       }
     });
-  },[]);
+  }, []);
 
-  return (
-    loading?<Spinner/>:
-    (<Switch>
+  return loading ? (
+    <Spinner />
+  ) : (
+    <Switch>
       <Route exact path='/' component={App} />
       <Route path='/login' component={Login} />
       <Route path='/register' component={Register} />
-    </Switch>));
+    </Switch>
+  );
 };
 
 const RootWithAuth = withRouter(Root);

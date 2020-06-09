@@ -47,7 +47,8 @@ const MessageForm = (props) => {
   const sendMessage = () => {
     if (message) {
       setLoading(true);
-      props.messagesRef
+      props
+        .getMessageRef()
         .doc(channel.currentChannel.id)
         .collection('message')
         .add(createMessage())
@@ -66,11 +67,19 @@ const MessageForm = (props) => {
     }
   };
 
+  const getPath = () => {
+    if (props.isPrivateChannel) {
+      return `chat/private-${channel.id}`;
+    } else {
+      return 'chat/public';
+    }
+  };
+
   const uploadFile = async (file, metadata) => {
     if (channel.currentChannel) {
       const pathToUpload = channel.currentChannel.id;
-      const ref = props.messagesRef;
-      const filePath = `chat/public/${uuidv4()}.jpg`;
+      const ref = props.getMessageRef();
+      const filePath = `${getPath()}/${uuidv4()}.jpg`;
 
       setUploadState('uploading');
       setUploadTask(storageRef.child(filePath).put(file, metadata));
@@ -80,7 +89,7 @@ const MessageForm = (props) => {
         .then((snapshot) => {
           const percent =
             Math.round(snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-            props.isProgressBarVisible(percent)
+          props.isProgressBarVisible(percent);
           setPercentUploaded(percent);
           firebase
             .storage()
@@ -141,7 +150,7 @@ const MessageForm = (props) => {
         />
         <Button
           color='teal'
-          disabled={uploadState==='uploading'}
+          disabled={uploadState === 'uploading'}
           onClick={openModal}
           content='upload Media'
           labelPosition='right'

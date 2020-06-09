@@ -14,13 +14,13 @@ const Messages = () => {
   const user = useSelector((state) => state.user);
   const [progressBar, setProgressBar] = useState(false);
   const [numUniqueUsers, setNumUniqueUsers] = useState('');
+  const [searchTerm, setSearchTerm] = useState('');
+  const [searchLoading, setSearchLoading] = useState(false);
+  const [searchResults, setSearchResults] = useState([]);
   const [privateMessageRef] = useState(
     firebase.firestore().collection('privateMessages')
   );
-
-  const getMessageRef = () => {
-    return channel.isPrivateChannel ? privateMessageRef : messagesRef;
-  };
+  const [isChannelStarred, setIsChannelStarred] = useState(false);
 
   useEffect(() => {
     if (channel.currentChannel && user.currentUser) {
@@ -45,6 +45,31 @@ const Messages = () => {
     }
   }, [channel]);
 
+  const handleSearchChange = (e) => {
+    setSearchTerm(e.target.value);
+    setSearchLoading(true);
+    handleSearchMessages(e.target.value);
+  };
+
+  const handleSearchMessages = (searchTerm) => {
+    const channelMessages = [...messages];
+    const regex = new RegExp(searchTerm, 'gi');
+    const searchResults = channelMessages.reduce((acc, message) => {
+      if (
+        (message.content && message.content.match(regex)) ||
+        message.user.name.match(regex)
+      ) {
+        acc.push(message);
+      }
+      return acc;
+    }, []);
+    setSearchResults(searchResults);
+    setTimeout(() => {
+      setSearchLoading(false);
+    }, 1000);
+  };
+
+
   const countUniqueUsers = (messages) => {
     const uniqueUsers = messages.reduce((acc, message) => {
       if (!acc.includes(message.user.name)) {
@@ -57,7 +82,15 @@ const Messages = () => {
     setNumUniqueUsers(numUsers);
   };
 
-  const displayMessages = () =>
+  const getMessageRef = () => {
+    return channel.isPrivateChannel ? privateMessageRef : messagesRef;
+  };
+
+  const handleStar = () => {
+    setIsChannelStarred((prev) => !prev);
+  };
+
+  const displayMessages = (messages) =>
     messages.length > 0 &&
     messages.map((message) => (
       <Message key={message.timestamp} message={message} />
@@ -81,13 +114,18 @@ const Messages = () => {
         channelName={displayChannelName()}
         numUniqueUsers={numUniqueUsers}
         isPrivateChannel={channel.isPrivateChannel}
+        handleStar={handleStar}
+        handleSearchChange={handleSearchChange}
+        searchLoading={searchLoading}
       />
 
       <Segment>
         <CommentGroup
           className={progressBar ? 'messages' : 'messages__progress'}
         >
-          {displayMessages()}
+          {searchTerm
+            ? displayMessages(searchResults)
+            : displayMessages(messages)}
         </CommentGroup>
       </Segment>
 

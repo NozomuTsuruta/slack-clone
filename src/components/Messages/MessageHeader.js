@@ -2,7 +2,6 @@ import React from 'react';
 import { Segment, Header, Icon, Input } from 'semantic-ui-react';
 
 const MessageHeader = (props) => {
-  console.log(props);
   return (
     <Segment clearing>
       <Header fluid='true' as='h2' floated='left' style={{ marginBottom: 0 }}>
@@ -10,8 +9,7 @@ const MessageHeader = (props) => {
           {props.channelName}
           {!props.isPrivateChannel && (
             <Icon
-              onClick={props.handleStar}
-              name={'star outline'}
+              name='code'
               color='black'
             />
           )}

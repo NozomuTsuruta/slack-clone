@@ -4,7 +4,8 @@ import MessageHeader from './MessageHeader';
 import MessageForm from './MessageForm';
 import Message from './Message';
 import firebase from '../../firebase';
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
+import {setUserPosts} from '../../ducks/channel/actions'
 
 const Messages = () => {
   const [messagesRef] = useState(firebase.firestore().collection('messages'));
@@ -20,7 +21,7 @@ const Messages = () => {
   const [privateMessageRef] = useState(
     firebase.firestore().collection('privateMessages')
   );
-  const [isChannelStarred, setIsChannelStarred] = useState(false);
+  const dispatch=useDispatch()
 
   useEffect(() => {
     if (channel.currentChannel && user.currentUser) {
@@ -38,6 +39,7 @@ const Messages = () => {
           setMessages(loadedMessages);
           setMessagesLoading(false);
           countUniqueUsers(loadedMessages);
+          countUserPosts(loadedMessages);
           return () => {
             getMessageRef().off();
           };
@@ -69,7 +71,6 @@ const Messages = () => {
     }, 1000);
   };
 
-
   const countUniqueUsers = (messages) => {
     const uniqueUsers = messages.reduce((acc, message) => {
       if (!acc.includes(message.user.name)) {
@@ -86,8 +87,19 @@ const Messages = () => {
     return channel.isPrivateChannel ? privateMessageRef : messagesRef;
   };
 
-  const handleStar = () => {
-    setIsChannelStarred((prev) => !prev);
+  const countUserPosts = (messages) => {
+    let userPosts = messages.reduce((acc, message) => {
+      if (message.user.name in acc) {
+        acc[message.user.name].count += 1;
+      } else {
+        acc[message.user.name] = {
+          avatar: message.user.avatar,
+          count: 1,
+        };
+      }
+      return acc;
+    }, {});
+    dispatch(setUserPosts(userPosts))
   };
 
   const displayMessages = (messages) =>
@@ -114,7 +126,6 @@ const Messages = () => {
         channelName={displayChannelName()}
         numUniqueUsers={numUniqueUsers}
         isPrivateChannel={channel.isPrivateChannel}
-        handleStar={handleStar}
         handleSearchChange={handleSearchChange}
         searchLoading={searchLoading}
       />

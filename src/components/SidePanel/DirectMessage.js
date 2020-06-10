@@ -59,7 +59,7 @@ const DirectMessages = () => {
             onClick={() => changeChannel(user)}
             style={{ opacity: 0.7, fontStyle: 'italic' }}
           >
-            <Icon name='circle' color='green' />@ {user.name}
+            <Icon name='circle' color='gray' />@ {user.name}
           </Menu.Item>
         ))}
       {/* users to Send Direct Messages */}

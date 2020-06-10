@@ -134,6 +134,8 @@ const Register = () => {
       name: createdUser.user.displayName,
       avatar: createdUser.user.photoURL,
       id: createdUser.user.uid,
+      primary: '#4c3c4c',
+      secondary: '#eee',
     });
   };
 

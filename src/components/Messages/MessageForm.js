@@ -5,6 +5,8 @@ import firebase from '../../firebase';
 import FileModal from './FileModal';
 import uuidv4 from 'uuid/v4';
 import ProgressBar from './ProgressBar';
+import { Picker, emojiIndex } from "emoji-mart";
+import "emoji-mart/css/emoji-mart.css";
 
 const MessageForm = (props) => {
   const [message, setMessage] = useState('');
@@ -15,6 +17,7 @@ const MessageForm = (props) => {
   const [uploadState, setUploadState] = useState('');
   const [percentUploaded, setPercentUploaded] = useState(0);
   const [storageRef] = useState(firebase.storage().ref());
+  const [emojiPicker,setEmojiPicker]=useState(false)
   const channel = useSelector((state) => state.channel);
   const user = useSelector((state) => state.user);
 
@@ -25,6 +28,34 @@ const MessageForm = (props) => {
   const handleChange = (e) => {
     setMessage(e.target.value);
   };
+
+  const handleTogglePicker = () => {
+    setEmojiPicker(!emojiPicker)
+  };
+
+  const handleAddEmoji = emoji => {
+    const oldMessage = message;
+    const newMessage = colonToUnicode(` ${oldMessage} ${emoji.colons} `);
+    setMessage(newMessage)
+    setEmojiPicker(false)
+    setTimeout(() => document.getElementById('message').focus(), 0);
+  };
+
+  const colonToUnicode = message => {
+    return message.replace(/:[A-Za-z0-9_+-]+:/g, x => {
+      x = x.replace(/:/g, "");
+      let emoji = emojiIndex.emojis[x];
+      if (typeof emoji !== "undefined") {
+        let unicode = emoji.native;
+        if (typeof unicode !== "undefined") {
+          return unicode;
+        }
+      }
+      x = ":" + x + ":";
+      return x;
+    });
+  };
+
 
   const createMessage = (fileUrl = null) => {
     const mess = {
@@ -124,13 +155,27 @@ const MessageForm = (props) => {
 
   return (
     <Segment className='message__form'>
+      {emojiPicker && (
+          <Picker
+            set="apple"
+            onSelect={handleAddEmoji}
+            className="emojipicker"
+            title="Pick your emoji"
+            emoji="point_up"
+          />
+        )}
       <Input
+        id='message'
         fluid
         name='message'
         onChange={handleChange}
         value={message}
         style={{ marginButtom: '0.7em' }}
-        label={<Button icon={'add'} />}
+        label={<Button
+          icon={emojiPicker ? "close" : "add"}
+          content={emojiPicker ? "Close" : null}
+          onClick={handleTogglePicker}
+        />}
         labelPosition='left'
         className={
           errors.some((error) => error.message.includes('message'))

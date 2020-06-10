@@ -23,7 +23,7 @@ const ColorPanel = () => {
   const dispatch=useDispatch()
 
   useEffect(() => {
-    if (user.currentUser) {
+    if (user.currentUser.primary) {
       usersRef.onSnapshot((snapshot) => {
         const userArray = snapshot.docs.map((doc) => {
           return { ...doc.data() };

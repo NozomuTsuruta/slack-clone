@@ -67,7 +67,7 @@ const ColorPanel = () => {
             id: user.currentUser.uid,
             name: user.currentUser.displayName,
             primary,
-            secondary,
+            secondary
           },
           { merge: true }
         )

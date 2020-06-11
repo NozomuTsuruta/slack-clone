@@ -45,7 +45,7 @@ const Messages = () => {
           };
         });
     }
-  }, [channel]);
+  }, [channel.currentChannel]);
 
   const handleSearchChange = (e) => {
     setSearchTerm(e.target.value);

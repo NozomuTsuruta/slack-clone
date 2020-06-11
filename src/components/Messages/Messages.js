@@ -5,7 +5,7 @@ import MessageForm from './MessageForm';
 import Message from './Message';
 import firebase from '../../firebase';
 import { useSelector, useDispatch } from 'react-redux';
-import {setUserPosts} from '../../ducks/channel/actions'
+import { setUserPosts } from '../../ducks/channel/actions';
 
 const Messages = () => {
   const [messagesRef] = useState(firebase.firestore().collection('messages'));
@@ -21,7 +21,7 @@ const Messages = () => {
   const [privateMessageRef] = useState(
     firebase.firestore().collection('privateMessages')
   );
-  const dispatch=useDispatch()
+  const dispatch = useDispatch();
 
   useEffect(() => {
     if (channel.currentChannel && user.currentUser) {
@@ -46,6 +46,13 @@ const Messages = () => {
         });
     }
   }, [channel.currentChannel]);
+
+  useEffect(() => {
+    const scrollArea = document.getElementById('scroll-area');
+    if (scrollArea) {
+      scrollArea.scrollTop = scrollArea.scrollHeight;
+    }
+  }, [messages]);
 
   const handleSearchChange = (e) => {
     setSearchTerm(e.target.value);
@@ -99,7 +106,7 @@ const Messages = () => {
       }
       return acc;
     }, {});
-    dispatch(setUserPosts(userPosts))
+    dispatch(setUserPosts(userPosts));
   };
 
   const displayMessages = (messages) =>
@@ -133,6 +140,7 @@ const Messages = () => {
       <Segment>
         <CommentGroup
           className={progressBar ? 'messages' : 'messages__progress'}
+          id='scroll-area'
         >
           {searchTerm
             ? displayMessages(searchResults)

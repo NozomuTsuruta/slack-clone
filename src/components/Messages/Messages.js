@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { Segment, CommentGroup } from 'semantic-ui-react';
+import { Segment, Comment } from 'semantic-ui-react';
 import MessageHeader from './MessageHeader';
 import MessageForm from './MessageForm';
 import Message from './Message';
 import firebase from '../../firebase';
 import { useSelector, useDispatch } from 'react-redux';
-import {setUserPosts} from '../../ducks/channel/actions'
+import { setUserPosts } from '../../ducks/channel/actions';
+import Skeleton from './Skeleton';
 
 const Messages = () => {
   const [messagesRef] = useState(firebase.firestore().collection('messages'));
@@ -21,7 +22,7 @@ const Messages = () => {
   const [privateMessageRef] = useState(
     firebase.firestore().collection('privateMessages')
   );
-  const dispatch=useDispatch()
+  const dispatch = useDispatch();
 
   useEffect(() => {
     if (channel.currentChannel && user.currentUser) {
@@ -46,6 +47,13 @@ const Messages = () => {
         });
     }
   }, [channel.currentChannel]);
+
+  useEffect(() => {
+    const scrollArea = document.getElementById('scroll-area');
+    if (scrollArea) {
+      scrollArea.scrollTop = scrollArea.scrollHeight;
+    }
+  }, [messages]);
 
   const handleSearchChange = (e) => {
     setSearchTerm(e.target.value);
@@ -99,7 +107,7 @@ const Messages = () => {
       }
       return acc;
     }, {});
-    dispatch(setUserPosts(userPosts))
+    dispatch(setUserPosts(userPosts));
   };
 
   const displayMessages = (messages) =>
@@ -113,6 +121,15 @@ const Messages = () => {
       setProgressBar(true);
     }
   };
+
+  const displayMessageSkeleton = () => 
+    messagesLoading?(
+      <React.Fragment>
+        {[...Array(10)].map((_,i)=>(
+          <Skeleton key={i}/>
+        ))}
+      </React.Fragment>
+    ):null;
 
   const displayChannelName = () => {
     return channel.currentChannel
@@ -131,13 +148,15 @@ const Messages = () => {
       />
 
       <Segment>
-        <CommentGroup
+        <Comment.Group
           className={progressBar ? 'messages' : 'messages__progress'}
+          id='scroll-area'
         >
+          {displayMessageSkeleton()}
           {searchTerm
             ? displayMessages(searchResults)
             : displayMessages(messages)}
-        </CommentGroup>
+        </Comment.Group>
       </Segment>
 
       <MessageForm

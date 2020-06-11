@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { Segment, CommentGroup } from 'semantic-ui-react';
+import { Segment, Comment } from 'semantic-ui-react';
 import MessageHeader from './MessageHeader';
 import MessageForm from './MessageForm';
 import Message from './Message';
 import firebase from '../../firebase';
 import { useSelector, useDispatch } from 'react-redux';
 import { setUserPosts } from '../../ducks/channel/actions';
+import Skeleton from './Skeleton';
 
 const Messages = () => {
   const [messagesRef] = useState(firebase.firestore().collection('messages'));
@@ -40,9 +41,6 @@ const Messages = () => {
           setMessagesLoading(false);
           countUniqueUsers(loadedMessages);
           countUserPosts(loadedMessages);
-          return () => {
-            getMessageRef().off();
-          };
         });
     }
   }, [channel.currentChannel]);
@@ -121,6 +119,15 @@ const Messages = () => {
     }
   };
 
+  const displayMessageSkeleton = () =>
+    messagesLoading ? (
+      <React.Fragment>
+        {[...Array(10)].map((_, i) => (
+          <Skeleton key={i} />
+        ))}
+      </React.Fragment>
+    ) : null;
+
   const displayChannelName = () => {
     return channel.currentChannel
       ? `${channel.isPrivateChannel ? '@' : '#'}${channel.currentChannel.name}`
@@ -138,14 +145,15 @@ const Messages = () => {
       />
 
       <Segment>
-        <CommentGroup
+        <Comment.Group
           className={progressBar ? 'messages' : 'messages__progress'}
           id='scroll-area'
         >
+          {displayMessageSkeleton()}
           {searchTerm
             ? displayMessages(searchResults)
             : displayMessages(messages)}
-        </CommentGroup>
+        </Comment.Group>
       </Segment>
 
       <MessageForm

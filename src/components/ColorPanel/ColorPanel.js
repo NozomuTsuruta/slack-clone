@@ -20,7 +20,7 @@ const ColorPanel = () => {
   const [secondary, setSecondary] = useState('');
   const [usersRef] = useState(firebase.firestore().collection('users'));
   const user = useSelector((state) => state.user);
-  const dispatch=useDispatch()
+  const dispatch = useDispatch();
 
   useEffect(() => {
     if (user.currentUser.uid) {
@@ -28,15 +28,21 @@ const ColorPanel = () => {
         const userArray = snapshot.docs.map((doc) => {
           return { ...doc.data() };
         });
-        const primaryColor = userArray.filter(
-          (el) => el.id === user.currentUser.uid
-        )[0].primary;
-        setPrimary(primaryColor);
-        const secondaryColor = userArray.filter(
-          (el) => el.id === user.currentUser.uid
-        )[0].secondary;
-        setSecondary(secondaryColor);
-        dispatch(setColors(primaryColor,secondaryColor))
+        if (
+          userArray.filter((el) => el.id === user.currentUser.uid).length > 0
+        ) {
+          const primaryArray = userArray.filter(
+            (el) => el.id === user.currentUser.uid
+          );
+          setPrimary(primaryArray[0].primary);
+          const secondaryArray = userArray.filter(
+            (el) => el.id === user.currentUser.uid
+          );
+          setSecondary(secondaryArray[0].secondary);
+          dispatch(
+            setColors(primaryArray[0].primary, secondaryArray[0].secondary)
+          );
+        }
       });
     }
   }, []);
@@ -67,7 +73,7 @@ const ColorPanel = () => {
             id: user.currentUser.uid,
             name: user.currentUser.displayName,
             primary,
-            secondary
+            secondary,
           },
           { merge: true }
         )

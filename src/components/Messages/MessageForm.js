@@ -38,7 +38,7 @@ const MessageForm = (props) => {
     const newMessage = colonToUnicode(` ${oldMessage} ${emoji.colons} `);
     setMessage(newMessage)
     setEmojiPicker(false)
-    setTimeout(() => document.getElementById('message').focus(), 0);
+    setTimeout(() => this.messageInputRef.focus(), 0);
   };
 
   const colonToUnicode = message => {
@@ -165,8 +165,8 @@ const MessageForm = (props) => {
           />
         )}
       <Input
-        id='message'
         fluid
+        ref={node => (this.messageInputRef = node)}
         name='message'
         onChange={handleChange}
         value={message}

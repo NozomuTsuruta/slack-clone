@@ -41,9 +41,6 @@ const Messages = () => {
           setMessagesLoading(false);
           countUniqueUsers(loadedMessages);
           countUserPosts(loadedMessages);
-          return () => {
-            getMessageRef().off();
-          };
         });
     }
   }, [channel.currentChannel]);
@@ -122,14 +119,14 @@ const Messages = () => {
     }
   };
 
-  const displayMessageSkeleton = () => 
-    messagesLoading?(
+  const displayMessageSkeleton = () =>
+    messagesLoading ? (
       <React.Fragment>
-        {[...Array(10)].map((_,i)=>(
-          <Skeleton key={i}/>
+        {[...Array(10)].map((_, i) => (
+          <Skeleton key={i} />
         ))}
       </React.Fragment>
-    ):null;
+    ) : null;
 
   const displayChannelName = () => {
     return channel.currentChannel

@@ -1,8 +1,8 @@
 import { ActionTypes } from './constants';
 
 const initialState = {
-  primaryColor: '#4c3c4c',
-  secondaryColor: '#eee',
+  primaryColor: '',
+  secondaryColor: '',
 };
 
 export const colorReducer = (state = initialState, action) => {
